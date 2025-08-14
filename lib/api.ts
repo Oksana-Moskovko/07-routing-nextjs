@@ -22,19 +22,18 @@ export interface NewNote {
   tag: string;
 }
 
-export const fetchNotes = async ({
-  page = 1,
-  perPage = 12,
-  search = "",
-}: FetchNotesParams): Promise<FetchNotesResponse> => {
-  const trimmedSearch = search.trim();
+export const fetchNotes = async (
+  { page = 1, perPage = 10, search = "" }: FetchNotesParams = {},
+  tag?: string
+) => {
   const params: Record<string, string | number> = { page, perPage };
-  if (trimmedSearch) params.search = trimmedSearch;
 
-  const response = await axios.get<FetchNotesResponse>("/notes", { params });
-  return response.data;
+  if (search.trim()) params.search = search.trim();
+  if (tag && tag !== 'all') params.tag = tag;
+
+  const res = await axios.get("/notes", { params });
+  return res.data;
 };
-
 
 export const createNote = async (newNote: NewNote): Promise<Note> => {
   const response = await axios.post<Note>("/notes", newNote);
@@ -50,3 +49,4 @@ export const fetchNoteById = async (id: string) => {
   const response = await axios.get<Note>(`/notes/${id}`);
   return response.data;
 }
+

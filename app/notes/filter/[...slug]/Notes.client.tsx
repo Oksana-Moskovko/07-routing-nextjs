@@ -1,33 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { fetchNotes } from "../../lib/api";
 import { useDebouncedCallback } from "use-debounce";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import css from "./NotesPage.module.css";
-import NoteList from "../../components/NoteList/NoteList";
-import SearchBox from "../../components/SearchBox/SearchBox";
-import Pagination from "../../components/Pagination/Pagination";
-import Modal from "../../components/Modal/Modal";
-import NoteForm from "../../components/NoteForm/NoteForm";
+import SearchBox from "@/components/SearchBox/SearchBox";
+import Pagination from "@/components/Pagination/Pagination";
+import NoteList from "@/components/NoteList/NoteList";
+import Modal from "@/components/Modal/Modal";
+import NoteForm from "@/components/NoteForm/NoteForm";
 import { Note } from "@/types/note";
+import { fetchNotes } from "@/lib/api";
+import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 
 type NotesPageProps = {
   initialData: {
     notes: Note[];
     totalPages: number;
   };
+  tag?: string | undefined;
 };
 
-const NotesPage = ({ initialData }: NotesPageProps) => {
+const NotesPage = ({ initialData, tag }: NotesPageProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isSuccess } = useQuery({
-    queryKey: ["notes", searchQuery, currentPage],
+  const { data, isError, isSuccess } = useQuery({
+    queryKey: ["notes", searchQuery, currentPage, tag],
     queryFn: () =>
-      fetchNotes({ search: searchQuery, page: currentPage, perPage: 12 }),
+      fetchNotes({ search: searchQuery, page: currentPage, perPage: 12 }, tag),
     placeholderData: keepPreviousData,
     initialData,
   });
@@ -66,6 +68,7 @@ const NotesPage = ({ initialData }: NotesPageProps) => {
           </button>
         </div>
         {notes.length > 0 && <NoteList notes={notes} />}
+        {isError && <ErrorMessage />}
         {isModalOpen && (
           <Modal onClose={closeModal}>
             <NoteForm onClose={closeModal} />

@@ -10,7 +10,7 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-const NoteDetails = async ({ params }: Props) => {
+const NotePreview = async ({ params }: Props) => {
   const { id } = await params;
 
   const queryClient = new QueryClient();
@@ -27,4 +27,4 @@ const NoteDetails = async ({ params }: Props) => {
   );
 };
 
-export default NoteDetails;
+export default NotePreview;
