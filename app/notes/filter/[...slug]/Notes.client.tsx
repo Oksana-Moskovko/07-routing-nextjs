@@ -24,10 +24,22 @@ type NotesPageProps = {
 
 const NotesPage = ({ initialData, tag }: NotesPageProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [inputSearchQuery, setInputSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const updateSearchQuery = useDebouncedCallback((value) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  }, 500);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputSearchQuery(value);
+    updateSearchQuery(value);
+  };
+
   const { data, isError, isSuccess } = useQuery({
-    queryKey: ["notes", searchQuery, currentPage, tag],
+    queryKey: ["notes", searchQuery, tag, currentPage],
     queryFn: () =>
       fetchNotes({ search: searchQuery, page: currentPage, perPage: 12 }, tag),
     placeholderData: keepPreviousData,
@@ -35,19 +47,10 @@ const NotesPage = ({ initialData, tag }: NotesPageProps) => {
   });
   // console.log("Fetched data:", data);
 
-  const updateSearchQuery = useDebouncedCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value);
-      setCurrentPage(1);
-    },
-    300
-  );
   const notes = data?.notes ?? [];
-  // console.log(notes);
-
   const totalPages = data?.totalPages ?? 0;
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -55,7 +58,7 @@ const NotesPage = ({ initialData, tag }: NotesPageProps) => {
     <>
       <div className={css.app}>
         <div className={css.toolbar}>
-          <SearchBox onChange={updateSearchQuery} />
+          <SearchBox value={inputSearchQuery} onChange={handleSearchChange} />
           {isSuccess && totalPages > 1 && (
             <Pagination
               page={currentPage}

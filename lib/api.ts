@@ -29,7 +29,7 @@ export const fetchNotes = async (
   const params: Record<string, string | number> = { page, perPage };
 
   if (search.trim()) params.search = search.trim();
-  if (tag && tag !== 'all') params.tag = tag;
+  if (tag && tag !== 'All') params.tag = tag;
 
   const res = await axios.get("/notes", { params });
   return res.data;
