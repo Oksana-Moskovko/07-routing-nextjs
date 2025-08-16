@@ -1,10 +1,13 @@
 "use client";
+import css from "./NotePreview.module.css";
 
 type Props = {
   error: Error;
 };
 
 const Error = ({ error }: Props) => {
-  return <p>Could not fetch note details. {error.message}</p>;
+  return (
+    <p className={css.text}>Could not fetch note details. {error.message}</p>
+  );
 };
 export default Error;
